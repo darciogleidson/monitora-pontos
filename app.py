@@ -11,7 +11,7 @@ load_dotenv()
 #lista de equipamentos de entrada
 equipamentos_entrada = "1,2,3,4,5,6,7,8,9,10"
 #lista de equipamentos de saida
-equipamentos_saida = "11,12,13,14,15,16,17,18,19,20"
+equipamentos_saida = ["11,12,13,14,15,16,17,18,19,20"]
 
 #função para enviar mensagem no telegram
 def send_message(msg):
@@ -27,22 +27,6 @@ def send_message(msg):
 
     # print("Mensagem enviada: " + msg)
 
-#função para verificar se a placa tem registro na lista de equipamentos de saida nos ultimos 7 dias
-def verifica_placa(placa):
-
-    #ler o arquivo csv tabelaPassagem.csv
-    df = pd.read_csv('tabelaPassagem.csv')
-    #verifica se a placa tem passage nos equipamentos de saida nos ultimos 7 dias
-    #ERRO
-    #df = df[(df['pas_ds_placa'] == placa) & (df['equ_id_equipamento'].isin(equipamentos_saida.split(","))) & (df['pas_dh_passagem'] >= datetime.datetime.now() - datetime.timedelta(days=7))]
-    df = df[(df['placa'] == placa) & (df['equ_id_equipamento'].isin(equipamentos_saida.split(",")))]
-
-    #se tiver registro, retorna verdadeiro
-    if len(df) > 0:
-        return True
-    else:
-        return False
-
 #aplicação em loop infinito, fazendo a verificação a cada 5 minutos
 while True:
     #printar mensagem que executou a verificação
@@ -53,9 +37,7 @@ while True:
 
     #ler o arquivo csv tabelaPassagem.csv
     df = pd.read_csv('tabelaPassagem.csv')
-    print(df)
     #pegar todos os registros dos ultimos 20 minutos, baseado no campo pas_dh_passagem
-    ##ERRO
     df['pas_dh_passagem'] = pd.to_datetime(df['pas_dh_passagem'])
 
     # Calcula o limite de tempo para os últimos 20 minutos
@@ -66,11 +48,25 @@ while True:
 
     # Aplica DISTINCT no campo 'placa'
     placas_distintas = df_filtrado['placa'].unique()
+    print("Placas distintas: " + str(placas_distintas))
+
+    #ler o arquivo csv tabelaPassagem.csv
+    df_pontos_saida = pd.read_csv('tabelaPassagem.csv')
 
     for placa in placas_distintas:
-        if verifica_placa(placa):
-            #se passou, envia mensagem para o telegram
-            send_message("Placa: " + placa )
+        #verifica se a placa tem passage nos equipamentos de saida nos ultimos 7 dias
+        #ERRO
+        #df = df[(df['pas_ds_placa'] == placa) & (df['equ_id_equipamento'].isin(equipamentos_saida.split(","))) & (df['pas_dh_passagem'] >= datetime.datetime.now() - datetime.timedelta(days=7))]
+        print(df_pontos_saida)
+        print('-------------------')
+        print(equipamentos_saida)
+        print('-------------------')
+        #placa_existente = (df['placa'] == placa_desejada) & (df['equipamento_id'].isin(equipamentos_saida)).any()
+        df_passou =  (df_pontos_saida['placa'] == placa) & (df_pontos_saida['equ_id_equipamento'].isin(equipamentos_saida)).any()
+        print(df_passou)
+        #se tiver registro, retorna verdadeiro
+        if len(df_passou) > 0:
+            send_message("Placa " + placa + " passou nos pontos de saida nos ultimos 7 dias")
 
     #espera 1 minutos para fazer a verificação novamente
     time.sleep(60)
