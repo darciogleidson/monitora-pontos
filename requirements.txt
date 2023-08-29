@@ -3,3 +3,4 @@ telepot
 time
 datetime
 os
+azure-kusto-data
