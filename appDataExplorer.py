@@ -18,6 +18,8 @@ equipamentos_saida = [15701,15717,15626,15624,17888,15646,15640,15722,15668,972,
 limite_tempo = datetime.datetime.now(pytz.utc) - datetime.timedelta(minutes=20)
 # Calcula o limite de dias para os últimos 7 dias
 limite_dias = datetime.datetime.now(pytz.utc) - datetime.timedelta(days=7)
+# Placas para ignorar
+placas_ignorar = ['JJJ1111','III1110','PNE3382']
 
 #função para enviar mensagem no telegram
 def send_message(msg):
@@ -47,6 +49,8 @@ while True:
 
     # Filtra os registros com base no limite de tempo
     df_filtrado = df[df['dataRecebimento'] >= limite_tempo]
+    # Remove as placas que devem ser ignoradas
+    df_filtrado = df_filtrado[~df_filtrado['placa'].isin(placas_ignorar)]
 
     # Groupby por placa e maior pas_dh_passagem e com o ponto da passagem com maior pas_dh_passagem
     placas_distintas = df_filtrado.groupby(['placa']).agg({'dataPassagem': 'max', 'equipamento_id': 'max'}).reset_index()

@@ -23,9 +23,6 @@ $placas_ignorar = "'JJJ1111','III1110'";
 //OBS: a idéia é pegar na dataPassagem os últimos "60 minutos" e desses pegar os últimos "10 minutos" da dataInsercao
 //pois não existe index para a dataInsercao, assim diminui o intervalo para o banco fazer scan.
 
-$producao = Input::get('producao','false');
-$teste = Input::get('teste','false');
-
 //Mensagem para avisar que o serviço está ativo
 if ($verificacoes == 20){
     Cache::put('verificacoes', 0, 1000);
