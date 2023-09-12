@@ -97,9 +97,6 @@ $id_equipamentos_start = "3920";
 $intervalo =  '15 day';
 //$intervalo_dh_passagem = permanece os mesmos
 
-$chatId = "341387850";
-$botToken = "653908071:AAF_HMZlYKzhf31ZCBErB39WNa4p0s0Fvqo";
-
 $sql = "select distinct pas_ds_placa from spiabr.tb_pas_passagem pas inner join spiabr.tb_equ_equipamento_fixo equ on pas.equ_id_equipamento_fixo = equ.equ_id_equipamento_fixo
 where pas.pas_dh_passagem > (now() - interval '$intervalo')
 and equ.equ_id_equipamento_fixo in ($id_equipamentos_start)

@@ -35,6 +35,11 @@ def send_message(msg):
 
     # print("Mensagem enviada: " + msg)
 
+def mensagem_enviada(identificador):
+    with open('registro_mensagens.txt', 'r') as arquivo:
+        mensagens_enviadas = arquivo.readlines()
+        return identificador in mensagens_enviadas
+
 #aplicação em loop infinito, fazendo a verificação a cada 5 minutos
 while True:
     #printar mensagem que executou a verificação
@@ -70,8 +75,13 @@ while True:
         if len(df_passou) > 0:
             df_passou['dataPassagem_formatada'] = df_passou['dataPassagem'].dt.strftime('%d-%m-%y %H:%M')
             data_passagem_1 = pd.to_datetime(placa.dataPassagem)
-            send_message("Placa: " + placa.placa + " passou no Equipamento: " + str(placa.equipamento_id) + " na Data: " + (data_passagem_1.strftime('%d-%m-%y %H:%M')) +
-                         " e também passou no Equipamento: " + str(df_passou['equipamento_id'].iloc[0]) + " na Data: " + str(df_passou['dataPassagem_formatada'].iloc[0]))
+            identificador = "Placa:" + placa.placa + "Equipamento:" + str(placa.equipamento_id)
 
+            if not mensagem_enviada(identificador):
+                send_message("Placa: " + placa.placa + " passou no Equipamento: " + str(placa.equipamento_id) + " na Data: " + (data_passagem_1.strftime('%d-%m-%y %H:%M')) + " e também passou no Equipamento: " + str(df_passou['equipamento_id'].iloc[0]) + " na Data: " + str(df_passou['dataPassagem_formatada'].iloc[0]))
+                with open('registro_mensagens.txt', 'a') as arquivo:
+                    arquivo.write(identificador + '\n')
+            else:
+                print("Mensagem já enviada: " + identificador)
     #espera 1 minutos para fazer a verificação novamente
     time.sleep(30)
