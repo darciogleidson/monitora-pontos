@@ -52,7 +52,8 @@ while True:
     #passa a coluna para campo datetime
     df['dataRecebimento'] = pd.to_datetime(df['dataRecebimento'])
 
-    # Filtra os registros com base no limite de tempo
+    # Filtra os registros com base no limite de tempo e pontos de entrada
+    df = df[df['equipamento_id'].isin(equipamentos_entrada)]
     df_filtrado = df[df['dataRecebimento'] >= limite_tempo]
     # Remove as placas que devem ser ignoradas
     df_filtrado = df_filtrado[~df_filtrado['placa'].isin(placas_ignorar)]
@@ -77,11 +78,18 @@ while True:
             data_passagem_1 = pd.to_datetime(placa.dataPassagem)
             identificador = "Placa:" + placa.placa + "Equipamento:" + str(placa.equipamento_id)
 
-            if not mensagem_enviada(identificador):
+            if not mensagem_enviada(identificador + '\n'):
                 send_message("Placa: " + placa.placa + " passou no Equipamento: " + str(placa.equipamento_id) + " na Data: " + (data_passagem_1.strftime('%d-%m-%y %H:%M')) + " e também passou no Equipamento: " + str(df_passou['equipamento_id'].iloc[0]) + " na Data: " + str(df_passou['dataPassagem_formatada'].iloc[0]))
                 with open('registro_mensagens.txt', 'a') as arquivo:
                     arquivo.write(identificador + '\n')
             else:
                 print("Mensagem já enviada: " + identificador)
+
     #espera 1 minutos para fazer a verificação novamente
     time.sleep(30)
+
+
+# TODO:
+# retirar '\n' da pesquisa do arquivo de mensagens enviadas
+# hora correta
+# contador para limpar o arquivo de mensagens enviadas
