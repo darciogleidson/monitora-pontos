@@ -38,8 +38,11 @@ def send_message(msg):
 def mensagem_enviada(identificador):
     with open('registro_mensagens.txt', 'r') as arquivo:
         mensagens_enviadas = arquivo.readlines()
+        #retirar \n da lista
+        mensagens_enviadas = [x.strip() for x in mensagens_enviadas]
         return identificador in mensagens_enviadas
 
+loop = 0
 #aplicação em loop infinito, fazendo a verificação a cada 5 minutos
 while True:
     #printar mensagem que executou a verificação
@@ -78,18 +81,23 @@ while True:
             data_passagem_1 = pd.to_datetime(placa.dataPassagem)
             identificador = "Placa:" + placa.placa + "Equipamento:" + str(placa.equipamento_id)
 
-            if not mensagem_enviada(identificador + '\n'):
+            if not mensagem_enviada(identificador):
                 send_message("Placa: " + placa.placa + " passou no Equipamento: " + str(placa.equipamento_id) + " na Data: " + (data_passagem_1.strftime('%d-%m-%y %H:%M')) + " e também passou no Equipamento: " + str(df_passou['equipamento_id'].iloc[0]) + " na Data: " + str(df_passou['dataPassagem_formatada'].iloc[0]))
                 with open('registro_mensagens.txt', 'a') as arquivo:
                     arquivo.write(identificador + '\n')
             else:
                 print("Mensagem já enviada: " + identificador)
 
+    #incrementar a variavel loop e quando chegar a 10, limpar o arquivo de mensagens enviadas
+    loop = loop + 1
+    if loop == 10:
+        with open('registro_mensagens.txt', 'w') as arquivo:
+            arquivo.write('')
+        loop = 0
+
     #espera 1 minutos para fazer a verificação novamente
     time.sleep(30)
 
 
 # TODO:
-# retirar '\n' da pesquisa do arquivo de mensagens enviadas
 # hora correta
-# contador para limpar o arquivo de mensagens enviadas
